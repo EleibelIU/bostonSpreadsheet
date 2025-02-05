@@ -19,24 +19,23 @@ class MapManager {
     }
 
     initialize() {
-        // Initialize map with dark mode style
         this.map = L.map('map').setView(this.palladiumCoords, 11);
         
-        // Add dark mode tiles
-        L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-            maxZoom: 20,
-            attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>'
+        // Use OpenStreetMap tiles with dark theme
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19,
+            className: 'dark-themed-map' // This class will be affected by our CSS filters
         }).addTo(this.map);
 
-        // Create custom icon for Palladium using the tarcil image
+        // Add Palladium marker
         const venueIcon = L.divIcon({
-            html: '<img src="/assets/tarcil.jpg" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff;">',
+            html: '<div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; border: 2px solid #fff;"><img src="/assets/tarcil.jpg" style="width: 100%; height: 100%; object-fit: cover;"></div>',
             className: 'venue-marker',
-            iconSize: [36, 36],
-            iconAnchor: [18, 18]
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
         });
 
-        // Add Palladium marker
         L.marker(this.palladiumCoords, { icon: venueIcon })
             .bindPopup('<strong>The Palladium</strong>')
             .addTo(this.map);
@@ -52,9 +51,9 @@ class MapManager {
             const lat = this.palladiumCoords[0] + (Math.random() - 0.5) * 0.1;
             const lng = this.palladiumCoords[1] + (Math.random() - 0.5) * 0.1;
             
-            // Create circle marker with color based on viability rating
+            // Create circle marker
             const marker = L.circleMarker([lat, lng], {
-                radius: 12,
+                radius: 10,
                 fillColor: this.getColorForRating(listing.Viability),
                 color: '#ffffff',
                 weight: 2,
@@ -72,14 +71,14 @@ class MapManager {
             // Add hover effect
             marker.on('mouseover', function() {
                 this.setStyle({
-                    radius: 15,
+                    radius: 12,
                     fillOpacity: 1
                 });
             });
             
             marker.on('mouseout', function() {
                 this.setStyle({
-                    radius: 12,
+                    radius: 10,
                     fillOpacity: 0.8
                 });
             });

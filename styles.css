@@ -20,8 +20,9 @@
     min-height: 66vh;
 }
 
+Untitled
 /* Dark theme map styles */
-.leaflet-tile {
+.dark-themed-map {
     filter: invert(1) hue-rotate(180deg) brightness(0.8) contrast(0.9);
 }
 
@@ -29,15 +30,18 @@
     background: #1a1a1a !important;
 }
 
-.leaflet-control-zoom a {
-    background: var(--card-bg) !important;
-    color: var(--secondary) !important;
-    border-color: var(--muted) !important;
+/* Fix for circle markers in dark mode */
+.leaflet-marker-icon {
+    filter: none !important;
 }
 
-.leaflet-control-zoom a:hover {
-    background: var(--highlight) !important;
-    color: var(--card-bg) !important;
+.leaflet-popup-content-wrapper {
+    background: #2b2b2b !important;
+    color: #ffffff !important;
+}
+
+.leaflet-popup-tip {
+    background: #2b2b2b !important;
 }
 
 .content-container {
