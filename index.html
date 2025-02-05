@@ -75,46 +75,54 @@
         }
 
         function createListingCard(listing, index) {
-            return `
-                <article class="listing-card" style="--delay: ${index}">
-                    <div class="listing-content">
-                        <h2 class="listing-title">${listing["Name "]}</h2>
-                        
-                        <div class="listing-location">
-                            <span>${listing.Location || 'Location N/A'}</span>
-                        </div>
+    return `
+        <article class="listing-card" style="--delay: ${index}">
+            <div class="listing-content">
+                <h2 class="listing-title">${listing["Name "]}</h2>
+                
+                <div class="listing-location">
+                    <span>${listing.Location || 'Location N/A'}</span>
+                </div>
 
-                        <div class="listing-details">
-                            <div class="listing-detail">
-                                <span class="tooltip" data-tooltip="Number of Bedrooms">🛏️ ${listing.Bedrooms} BR</span>
+                <div class="listing-details">
+                    <div class="listing-detail">
+                        <div class="tooltip-container">
+                            <span class="tooltip-trigger">🛏️ ${listing.Bedrooms} BR</span>
+                            <div class="tooltip-overlay"></div>
+                            <div class="tooltip-text">
+                                <button class="close-button">×</button>
+                                <strong>Bed Configuration:</strong><br>
+                                ${listing.Notes}
                             </div>
-                            <div class="listing-detail">
-                                <span class="tooltip" data-tooltip="Number of Bathrooms">🚿 ${listing.Bathrooms} Bath</span>
-                            </div>
-                            <div class="listing-detail">
-                                <span class="tooltip" data-tooltip="Distance from Airport">✈️ ${listing["Distance from Airport (minutes)"]}min</span>
-                            </div>
-                            <div class="listing-detail">
-                                <span class="tooltip" data-tooltip="Distance from Palladium Venue">🎸 ${listing["Distance (approx. Minutes) from Palladium show VENUE"]}min</span>
-                            </div>
-                        </div>
-
-                        <div class="listing-price">
-                            ${listing["Cost/Person (ENTIRE TRIP)"]} per person
-                            <div class="total-price">
-                                Total: ${formatMoney(listing["Total cost (With Taxes)"])}
-                            </div>
-                        </div>
-
-                        <div class="listing-meta">
-                            ${getViabilityBadge(listing.Viability)}
-                            <span class="tooltip" data-tooltip="${listing.Refundable ? 'Booking is refundable' : 'Booking is non-refundable'}">${listing.Refundable ? '✓ Refundable' : '× Non-refundable'}</span>
-                            <a href="${listing.Url}" target="_blank" class="view-link">View Details</a>
                         </div>
                     </div>
-                </article>
-            `;
-        }
+                    <div class="listing-detail">
+                        <span>🚿 ${listing.Bathrooms} Bath</span>
+                    </div>
+                    <div class="listing-detail">
+                        <span>✈️ ${listing["Distance from Airport (minutes)"]}min</span>
+                    </div>
+                    <div class="listing-detail">
+                        <span>🎸 ${listing["Distance (approx. Minutes) from Palladium show VENUE"]}min</span>
+                    </div>
+                </div>
+
+                <div class="listing-price">
+                    ${listing["Cost/Person (ENTIRE TRIP)"]} per person
+                    <div class="total-price">
+                        Total: ${formatMoney(listing["Total cost (With Taxes)"])}
+                    </div>
+                </div>
+
+                <div class="listing-meta">
+                    ${getViabilityBadge(listing.Viability)}
+                    <span>${listing.Refundable ? '✓ Refundable' : '× Non-refundable'}</span>
+                    <a href="${listing.Url}" target="_blank" class="view-link">View Details</a>
+                </div>
+            </div>
+        </article>
+    `;
+}
     </script>
     <script src="map.js"></script>
 
@@ -142,6 +150,46 @@
             }
         });
     </script>
+
+<script>
+    document.addEventListener('click', function(e) {
+        // Close all tooltips when clicking outside
+        if (!e.target.closest('.tooltip-container')) {
+            document.querySelectorAll('.tooltip-container.active').forEach(container => {
+                container.classList.remove('active');
+            });
+            return;
+        }
+
+        // Toggle tooltip when clicking on trigger
+        if (e.target.closest('.tooltip-trigger')) {
+            const container = e.target.closest('.tooltip-container');
+            const wasActive = container.classList.contains('active');
+            
+            // Close all other active tooltips
+            document.querySelectorAll('.tooltip-container.active').forEach(cont => {
+                cont.classList.remove('active');
+            });
+
+            // Toggle current tooltip
+            if (!wasActive) {
+                container.classList.add('active');
+            }
+        }
+
+        // Close tooltip when clicking close button
+        if (e.target.classList.contains('close-button')) {
+            e.target.closest('.tooltip-container').classList.remove('active');
+        }
+    });
+
+    // Close tooltip when clicking overlay
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('tooltip-overlay')) {
+            e.target.closest('.tooltip-container').classList.remove('active');
+        }
+    });
+</script>
 </body>
 
 </html>
