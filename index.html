@@ -74,8 +74,8 @@
             return `<span class="badge ${className}" data-tooltip="Property Rating: ${viability} out of 5">★ ${viability}/5</span>`;
         }
 
-function createListingCard(listing, index) {
-    return `
+        function createListingCard(listing, index) {
+            return `
         <article class="listing-card" style="--delay: ${index}">
             <div class="listing-content">
                 <h2 class="listing-title">${listing["Name "]}</h2>
@@ -114,7 +114,7 @@ function createListingCard(listing, index) {
             </div>
         </article>
     `;
-}
+        }
     </script>
     <script src="map.js"></script>
 
