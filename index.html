@@ -115,42 +115,11 @@
                 </article>
             `;
         }
+    </script>
+    <script src="map.js"></script>
 
-        function initMap() {
-            // The Palladium coordinates
-            const palladiumCoords = [42.2634, -71.8022];
-
-            const map = L.map('map').setView(palladiumCoords, 10);  // Adjusted zoom level to 10
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-
-            // Add Palladium marker
-            L.marker(palladiumCoords)
-                .bindPopup('<strong>The Palladium</strong><br>Worcester Venue')
-                .addTo(map);
-
-            return map;
-        }
-
-        // Add markers for listings
-        function addListingMarkers(map, listings) {
-            listings.forEach(listing => {
-                if (listing.Coordinates) {  // Note the capital 'C' in Coordinates
-                    const markerColor = listing.Viability >= 4 ? 'var(--success)' : 'var(--warning)';
-
-                    L.marker(listing.Coordinates)  // Use the Coordinates field directly
-                        .bindPopup(`
-                    <strong>${listing["Name "]}</strong><br>
-                    ${listing.Location}<br>
-                    ${listing["Cost/Person (ENTIRE TRIP)"]} per person
-                `)
-                        .addTo(map);
-                }
-            });
-        }
-
+    <!-- Update the DOMContentLoaded event listener to this: -->
+    <script>
         document.addEventListener("DOMContentLoaded", async function () {
             try {
                 // Initialize map
@@ -174,4 +143,5 @@
         });
     </script>
 </body>
+
 </html>
