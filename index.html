@@ -4,95 +4,256 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Airbnb Listings</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        :root {
+            --primary: #FF5A5F;
+            --secondary: #484848;
+            --background: #F7F7F7;
+            --card: #FFFFFF;
+        }
+
+        * {
             margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
+
+        body {
+            background-color: var(--background);
+            color: var(--secondary);
+            line-height: 1.5;
+        }
+
         .container {
-            max-width: 1000px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            overflow-x: auto;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
+
+        .header {
+            background-color: var(--card);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
+
+        .header h1 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
         }
-        th {
-            background-color: #333;
+
+        .listings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding-bottom: 2rem;
+        }
+
+        .listing-card {
+            background: var(--card);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .listing-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .listing-content {
+            padding: 1.25rem;
+        }
+
+        .listing-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+        }
+
+        .listing-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .listing-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .listing-price {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .listing-location {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #717171;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .listing-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.75rem;
+            border-top: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background-color: #34D399;
             color: white;
         }
-        a {
-            color: #007bff;
-            text-decoration: none;
+
+        .badge-warning {
+            background-color: #FBBF24;
+            color: white;
         }
-        a:hover {
-            text-decoration: underline;
+
+        .view-link {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+
+        .view-link:hover {
+            background-color: #FF4449;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0.5rem;
+            }
+
+            .header {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .listings-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .listing-card {
+                margin-bottom: 1rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Airbnb Listings</h2>
-        <table id="airbnb-table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Total Cost</th>
-                    <th>Cost/Person</th>
-                    <th>Bedrooms</th>
-                    <th>Bathrooms</th>
-                    <th>Beds</th>
-                    <th>Location</th>
-                    <th>Distance from Airport (min)</th>
-                    <th>Distance from Venue (min)</th>
-                    <th>Viability</th>
-                    <th>Platform</th>
-                    <th>Refundable</th>
-                    <th>Link</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <header class="header">
+            <h1>Airbnb Listings</h1>
+            <p>Available properties near The Palladium</p>
+        </header>
+        
+        <main class="listings-grid" id="listings-container">
+            <!-- Listings will be dynamically inserted here -->
+        </main>
     </div>
+
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            fetch('Drakkenhomies_Boston_AirBNB.json')
-                .then(response => response.json())
-                .then(data => {
-                    let tableBody = document.querySelector('#airbnb-table tbody');
-                    data.forEach(item => {
-                        let row = `<tr>
-                            <td>${item["Name "]}</td>
-                            <td>$${item["Total cost (With Taxes)"].toFixed(2)}</td>
-                            <td>${item["Cost/Person (ENTIRE TRIP)"]}</td>
-                            <td>${item.Bedrooms}</td>
-                            <td>${item.Bathrooms}</td>
-                            <td>${item.Beds || 'N/A'}</td>
-                            <td>${item.Location || 'N/A'}</td>
-                            <td>${item["Distance from Airport (minutes)"]}</td>
-                            <td>${item["Distance (approx. Minutes) from Palladium show VENUE"]}</td>
-                            <td>${item.Viability}</td>
-                            <td>${item.Platform}</td>
-                            <td>${item.Refundable ? 'Yes' : 'No'}</td>
-                            <td><a href="${item.Url}" target="_blank">View</a></td>
-                        </tr>`;
-                        tableBody.innerHTML += row;
-                    });
-                })
-                .catch(error => console.error('Error loading JSON:', error));
+        function formatMoney(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        }
+
+        function getViabilityBadge(viability) {
+            const className = viability >= 4 ? 'badge-success' : 'badge-warning';
+            return `<span class="badge ${className}">${viability}/5</span>`;
+        }
+
+        function createListingCard(listing) {
+            return `
+                <article class="listing-card">
+                    <div class="listing-content">
+                        <h2 class="listing-title">${listing["Name "]}</h2>
+                        
+                        <div class="listing-location">
+                            <span>${listing.Location || 'Location N/A'}</span>
+                        </div>
+
+                        <div class="listing-details">
+                            <div class="listing-detail">
+                                <span>🛏️ ${listing.Bedrooms} BR</span>
+                            </div>
+                            <div class="listing-detail">
+                                <span>🚿 ${listing.Bathrooms} Bath</span>
+                            </div>
+                            <div class="listing-detail">
+                                <span>✈️ ${listing["Distance from Airport (minutes)"]}min</span>
+                            </div>
+                            <div class="listing-detail">
+                                <span>🎭 ${listing["Distance (approx. Minutes) from Palladium show VENUE"]}min</span>
+                            </div>
+                        </div>
+
+                        <div class="listing-price">
+                            ${formatMoney(listing["Total cost (With Taxes)"])}
+                            <span style="font-size: 0.9rem; color: #717171">
+                                (${listing["Cost/Person (ENTIRE TRIP)"]} per person)
+                            </span>
+                        </div>
+
+                        <div class="listing-meta">
+                            ${getViabilityBadge(listing.Viability)}
+                            <span>${listing.Refundable ? '✓ Refundable' : '× Non-refundable'}</span>
+                            <a href="${listing.Url}" target="_blank" class="view-link">View Details</a>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }
+
+        document.addEventListener("DOMContentLoaded", async function () {
+            try {
+                const response = await fetch('Drakkenhomies_Boston_AirBNB.json');
+                const data = await response.json();
+                
+                const container = document.getElementById('listings-container');
+                const sortedData = _.sortBy(data, listing => -listing.Viability);
+                
+                container.innerHTML = sortedData
+                    .map(listing => createListingCard(listing))
+                    .join('');
+            } catch (error) {
+                console.error('Error loading listings:', error);
+            }
         });
     </script>
 </body>
