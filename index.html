@@ -115,24 +115,24 @@
             `;
         }
 
-        // Initialize map
-        function initMap() {
-            // The Palladium coordinates
-            const palladiumCoords = [42.2634, -71.8022];
-            
-            const map = L.map('map').setView(palladiumCoords, 11);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
+// Initialize map
+function initMap() {
+    // The Palladium coordinates
+    const palladiumCoords = [42.2634, -71.8022];
+    
+    const map = L.map('map').setView(palladiumCoords, 11);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-            // Add Palladium marker
-            L.marker(palladiumCoords)
-                .bindPopup('The Palladium')
-                .addTo(map);
+    // Add Palladium marker
+    L.marker(palladiumCoords)
+        .bindPopup('<strong>The Palladium</strong><br>Worcester Venue')
+        .addTo(map);
 
-            return map;
-        }
+    return map;
+}
 
 // Add markers for listings
 function addListingMarkers(map, listings) {
@@ -153,13 +153,26 @@ function addListingMarkers(map, listings) {
     });
 }
 
-        document.addEventListener("DOMContentLoaded", async function () {
-            try {
-                // Initialize map
-                const map = initMap();
-                
-                const response = await fetch('Drakkenhomies_Boston_AirBNB.json');
-                const data = await response.json();
+// Add markers for listings
+function addListingMarkers(map, listings) {
+    // Since listings is an object, not an array, we need to iterate differently
+    Object.entries(listings).forEach(([name, listing]) => {
+        if (listing.coordinates) {
+            // Create a custom icon based on the viability rating
+            const markerColor = listing.Viability >= 4 ? 'var(--success)' : 'var(--warning)';
+            
+            L.marker(listing.coordinates)
+                .bindPopup(`
+                    <strong>${name}</strong><br>
+                    ${listing.Location}<br>
+                    $${listing.price} per night
+                `)
+                .addTo(map);
+        }
+    });
+}
+
+        const container = document.getElementById('listings-container');
 
         const container = document.getElementById('listings-container');
 
