@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Airbnb Listings</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/hack-font/3.3.0/web/hack.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
 <body>
@@ -16,40 +17,47 @@
             <h1 class="typing">> DrakkenhomieMeetup_MARCH</h1>
             <p class="typing typing-delayed">// Available properties near The Palladium</p>
         </header>
+        
+        <div class="main-content">
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+            <div class="content-container">
+                <div class="legend">
+                    <h2 class="legend-title typing">> System.Icons.Guide</h2>
+                    <div class="legend-grid">
+                        <div class="legend-item">
+                            <span>🛏️</span>
+                            <span>Number of Bedrooms</span>
+                        </div>
+                        <div class="legend-item">
+                            <span>🚿</span>
+                            <span>Number of Bathrooms</span>
+                        </div>
+                        <div class="legend-item">
+                            <span>✈️</span>
+                            <span>Minutes from Airport</span>
+                        </div>
+                        <div class="legend-item">
+                            <span>🎸</span>
+                            <span>Minutes from Venue</span>
+                        </div>
+                        <div class="legend-item">
+                            <span>✓</span>
+                            <span>Refundable Booking</span>
+                        </div>
+                        <div class="legend-item">
+                            <span>×</span>
+                            <span>Non-refundable Booking</span>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="legend">
-            <h2 class="legend-title typing">> System.Icons.Guide</h2>
-            <div class="legend-grid">
-                <div class="legend-item">
-                    <span>🛏️</span>
-                    <span>Number of Bedrooms</span>
-                </div>
-                <div class="legend-item">
-                    <span>🚿</span>
-                    <span>Number of Bathrooms</span>
-                </div>
-                <div class="legend-item">
-                    <span>✈️</span>
-                    <span>Minutes from Airport</span>
-                </div>
-                <div class="legend-item">
-                    <span>🎸</span>
-                    <span>Minutes from Venue</span>
-                </div>
-                <div class="legend-item">
-                    <span>✓</span>
-                    <span>Refundable Booking</span>
-                </div>
-                <div class="legend-item">
-                    <span>×</span>
-                    <span>Non-refundable Booking</span>
-                </div>
+                <main class="listings-grid" id="listings-container">
+                    <!-- Listings will be dynamically inserted here -->
+                </main>
             </div>
         </div>
-
-        <main class="listings-grid" id="listings-container">
-            <!-- Listings will be dynamically inserted here -->
-        </main>
     </div>
 
     <script>
@@ -107,8 +115,51 @@
             `;
         }
 
+        // Initialize map
+        function initMap() {
+            // The Palladium coordinates
+            const palladiumCoords = [42.2634, -71.8022];
+            
+            const map = L.map('map').setView(palladiumCoords, 11);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Add Palladium marker
+            L.marker(palladiumCoords)
+                .bindPopup('The Palladium')
+                .addTo(map);
+
+            return map;
+        }
+
+        // Add markers for listings
+        function addListingMarkers(map, listings) {
+            listings.forEach(listing => {
+                // Create a custom icon based on the viability rating
+                const markerColor = listing.Viability >= 4 ? 'var(--success)' : 'var(--warning)';
+                
+                // Get coordinates (you'll need to add these to your JSON)
+                // For now, adding random offset from the Palladium
+                const lat = 42.2634 + (Math.random() - 0.5) * 0.1;
+                const lng = -71.8022 + (Math.random() - 0.5) * 0.1;
+                
+                L.marker([lat, lng])
+                    .bindPopup(`
+                        <strong>${listing["Name "]}</strong><br>
+                        ${listing.Location}<br>
+                        ${listing["Cost/Person (ENTIRE TRIP)"]} per person
+                    `)
+                    .addTo(map);
+            });
+        }
+
         document.addEventListener("DOMContentLoaded", async function () {
             try {
+                // Initialize map
+                const map = initMap();
+                
                 const response = await fetch('Drakkenhomies_Boston_AirBNB.json');
                 const data = await response.json();
 
@@ -118,11 +169,13 @@
                 container.innerHTML = sortedData
                     .map((listing, index) => createListingCard(listing, index))
                     .join('');
+                
+                // Add markers to the map
+                addListingMarkers(map, sortedData);
             } catch (error) {
                 console.error('Error loading listings:', error);
             }
         });
     </script>
 </body>
-
 </html>
