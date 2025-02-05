@@ -30,7 +30,7 @@ class MapManager {
 
         // Add Palladium marker
         const venueIcon = L.divIcon({
-            html: '<div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; border: 2px solid #fff;"><img src="/assets/tarcil.jpg" style="width: 100%; height: 100%; object-fit: cover;"></div>',
+            html: '<div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; border: 2px solid #fff;"><img src="assets/tarcil.jpg" style="width: 100%; height: 100%; object-fit: cover;"></div>',
             className: 'venue-marker',
             iconSize: [32, 32],
             iconAnchor: [16, 16]
