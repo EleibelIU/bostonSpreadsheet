@@ -4,7 +4,6 @@ class MapManager {
         this.map = null;
         this.markers = [];
         this.palladiumCoords = [42.2634, -71.8022];
-        this.setupFullscreenControls();
     }
 
     initialize() {
@@ -13,7 +12,8 @@ class MapManager {
         // Use OpenStreetMap tiles with dark theme
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
-            maxZoom: 19
+            maxZoom: 19,
+            className: 'dark-themed-map' // This class will be affected by our CSS filters
         }).addTo(this.map);
 
         // Add Palladium marker with custom style
@@ -26,41 +26,6 @@ class MapManager {
         L.marker(this.palladiumCoords, { icon: venueIcon })
             .bindPopup('<strong>The Palladium</strong>')
             .addTo(this.map);
-    }
-
-    setupFullscreenControls() {
-        const mapContainer = document.querySelector('.map-container');
-        const fullscreenButton = document.getElementById('fullscreen-toggle');
-        
-        if (fullscreenButton) {
-            fullscreenButton.addEventListener('click', () => {
-                this.toggleFullscreen(mapContainer, fullscreenButton);
-            });
-        }
-
-        // Handle ESC key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && mapContainer.classList.contains('fullscreen')) {
-                this.toggleFullscreen(mapContainer, fullscreenButton, false);
-            }
-        });
-    }
-
-    toggleFullscreen(container, button, force = null) {
-        const setFullscreen = force !== null ? force : !container.classList.contains('fullscreen');
-        container.classList.toggle('fullscreen', setFullscreen);
-        
-        if (button) {
-            button.querySelector('span').textContent = setFullscreen ? 'Exit Fullscreen' : 'Fullscreen';
-        }
-
-        // Trigger resize event for map
-        setTimeout(() => {
-            window.dispatchEvent(new Event('resize'));
-            if (this.map) {
-                this.map.invalidateSize();
-            }
-        }, 300);
     }
 
     addListingMarkers(listings) {

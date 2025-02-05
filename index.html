@@ -21,12 +21,6 @@
         
         <div class="main-content">
             <div class="map-container">
-                <button class="fullscreen-button" id="fullscreen-toggle">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-                    </svg>
-                    <span>Fullscreen</span>
-                </button>
                 <div id="map"></div>
             </div>
             <div class="content-container">
@@ -68,7 +62,6 @@
     </div>
 
     <script>
-        // Format currency for display
         function formatMoney(amount) {
             return new Intl.NumberFormat('en-US', {
                 style: 'currency',
@@ -76,13 +69,11 @@
             }).format(amount);
         }
 
-        // Generate viability badge HTML
         function getViabilityBadge(viability) {
             const className = viability >= 4 ? 'badge-success' : 'badge-warning';
             return `<span class="badge ${className}" data-tooltip="Property Rating: ${viability} out of 5">★ ${viability}/5</span>`;
         }
 
-        // Create HTML for a listing card
         function createListingCard(listing, index) {
             return `
                 <article class="listing-card" style="--delay: ${index}">
@@ -125,7 +116,6 @@
             `;
         }
 
-        // Load and display listings
         document.addEventListener("DOMContentLoaded", async function () {
             try {
                 const response = await fetch('Drakkenhomies_Boston_AirBNB.json');
