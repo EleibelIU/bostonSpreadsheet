@@ -134,26 +134,24 @@
             return map;
         }
 
-        // Add markers for listings
-        function addListingMarkers(map, listings) {
-            listings.forEach(listing => {
-                // Create a custom icon based on the viability rating
-                const markerColor = listing.Viability >= 4 ? 'var(--success)' : 'var(--warning)';
-                
-                // Get coordinates (you'll need to add these to your JSON)
-                // For now, adding random offset from the Palladium
-                const lat = 42.2634 + (Math.random() - 0.5) * 0.1;
-                const lng = -71.8022 + (Math.random() - 0.5) * 0.1;
-                
-                L.marker([lat, lng])
-                    .bindPopup(`
-                        <strong>${listing["Name "]}</strong><br>
-                        ${listing.Location}<br>
-                        ${listing["Cost/Person (ENTIRE TRIP)"]} per person
-                    `)
-                    .addTo(map);
-            });
+// Add markers for listings
+function addListingMarkers(map, listings) {
+    // Since listings is an object, not an array, we need to iterate differently
+    Object.entries(listings).forEach(([name, listing]) => {
+        if (listing.coordinates) {
+            // Create a custom icon based on the viability rating
+            const markerColor = listing.Viability >= 4 ? 'var(--success)' : 'var(--warning)';
+            
+            L.marker(listing.coordinates)
+                .bindPopup(`
+                    <strong>${name}</strong><br>
+                    ${listing.Location}<br>
+                    $${listing.price} per night
+                `)
+                .addTo(map);
         }
+    });
+}
 
         document.addEventListener("DOMContentLoaded", async function () {
             try {
@@ -163,19 +161,26 @@
                 const response = await fetch('Drakkenhomies_Boston_AirBNB.json');
                 const data = await response.json();
 
-                const container = document.getElementById('listings-container');
-                const sortedData = _.sortBy(data, listing => -listing.Viability);
+        const container = document.getElementById('listings-container');
 
-                container.innerHTML = sortedData
-                    .map((listing, index) => createListingCard(listing, index))
-                    .join('');
-                
-                // Add markers to the map
-                addListingMarkers(map, sortedData);
-            } catch (error) {
-                console.error('Error loading listings:', error);
-            }
-        });
+        // Convert object to array for sorting if needed
+        const listingsArray = Object.entries(data).map(([name, listing]) => ({
+            ...listing,
+            "Name ": name  // Keep the space in "Name " to match your existing format
+        }));
+
+        const sortedData = _.sortBy(listingsArray, listing => -listing.Viability);
+
+        container.innerHTML = sortedData
+            .map((listing, index) => createListingCard(listing, index))
+            .join('');
+        
+        // Pass the original data object to addListingMarkers
+        addListingMarkers(map, data);
+    } catch (error) {
+        console.error('Error loading listings:', error);
+    }
+});
     </script>
 </body>
 </html>
