@@ -47,13 +47,14 @@ const createListingIcon = (color) => {
 };
 
 function initMap() {
+    // The Palladium coordinates
     const palladiumCoords = [42.2634, -71.8022];
+
     const map = L.map('map').setView(palladiumCoords, 10);
 
-    // Stadia.AlidadeSmoothDark theme - no API key required
-    L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-        maxZoom: 20,
-        attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '©OpenStreetMap, ©CartoDB',
+        subdomains: 'abcd'
     }).addTo(map);
 
     // Add Palladium marker
