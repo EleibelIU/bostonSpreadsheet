@@ -4,20 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Airbnb Listings</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/hack-font/3.3.0/web/hack.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <style>
         :root {
-            --primary: #FF5A5F;
-            --secondary: #484848;
-            --background: #F7F7F7;
-            --card: #FFFFFF;
+            --background: #272822;
+            --card-bg: #1E1F1C;
+            --primary: #A6E22E;
+            --secondary: #F8F8F2;
+            --accent: #FD971F;
+            --highlight: #66D9EF;
+            --danger: #F92672;
+            --success: #A6E22E;
+            --warning: #FD971F;
+            --muted: #75715E;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: Hack, 'Courier New', Courier, monospace;
         }
 
         body {
@@ -33,29 +40,34 @@
         }
 
         .header {
-            background-color: var(--card);
+            background-color: var(--card-bg);
             padding: 1.5rem;
             margin-bottom: 2rem;
             border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid var(--muted);
         }
 
         .header h1 {
-            color: var(--primary);
+            color: var(--highlight);
             font-size: 1.8rem;
             margin-bottom: 0.5rem;
         }
 
+        .header p {
+            color: var(--accent);
+        }
+
         .legend {
-            background-color: var(--card);
+            background-color: var(--card-bg);
             padding: 1rem;
             border-radius: 8px;
             margin-bottom: 1.5rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid var(--muted);
         }
 
         .legend-title {
             font-weight: 600;
+            color: var(--highlight);
             margin-bottom: 0.5rem;
         }
 
@@ -70,6 +82,7 @@
             align-items: center;
             gap: 0.5rem;
             font-size: 0.9rem;
+            color: var(--secondary);
         }
 
         .listings-grid {
@@ -80,16 +93,16 @@
         }
 
         .listing-card {
-            background: var(--card);
+            background: var(--card-bg);
             border-radius: 12px;
             overflow: hidden;
             transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid var(--muted);
         }
 
         .listing-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            border-color: var(--highlight);
         }
 
         .listing-content {
@@ -100,7 +113,7 @@
             font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
-            color: var(--secondary);
+            color: var(--accent);
         }
 
         .listing-details {
@@ -120,6 +133,7 @@
 
         .listing-detail span {
             cursor: help;
+            color: var(--secondary);
         }
 
         .tooltip {
@@ -134,27 +148,33 @@
             left: 50%;
             transform: translateX(-50%);
             padding: 0.5rem;
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
+            background-color: var(--card-bg);
+            color: var(--secondary);
             border-radius: 4px;
             font-size: 0.8rem;
             white-space: nowrap;
             z-index: 1000;
             pointer-events: none;
+            border: 1px solid var(--muted);
         }
 
         .listing-price {
             font-size: 1.2rem;
             font-weight: 600;
-            color: var(--primary);
+            color: var(--highlight);
             margin-bottom: 0.5rem;
+        }
+
+        .total-price {
+            font-size: 0.9rem;
+            color: var(--muted);
         }
 
         .listing-location {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            color: #717171;
+            color: var(--muted);
             font-size: 0.9rem;
             margin-bottom: 1rem;
         }
@@ -164,7 +184,7 @@
             justify-content: space-between;
             align-items: center;
             padding-top: 0.75rem;
-            border-top: 1px solid #eee;
+            border-top: 1px solid var(--muted);
             font-size: 0.9rem;
         }
 
@@ -174,31 +194,34 @@
             font-size: 0.8rem;
             font-weight: 500;
             cursor: help;
+            font-family: Hack, monospace;
         }
 
         .badge-success {
-            background-color: #34D399;
-            color: white;
+            background-color: var(--success);
+            color: var(--card-bg);
         }
 
         .badge-warning {
-            background-color: #FBBF24;
-            color: white;
+            background-color: var(--warning);
+            color: var(--card-bg);
         }
 
         .view-link {
             display: inline-block;
             padding: 0.5rem 1rem;
             background-color: var(--primary);
-            color: white;
+            color: var(--card-bg);
             text-decoration: none;
             border-radius: 8px;
             font-size: 0.9rem;
-            transition: background-color 0.2s;
+            transition: all 0.2s;
+            font-family: Hack, monospace;
         }
 
         .view-link:hover {
-            background-color: #FF4449;
+            background-color: var(--highlight);
+            transform: translateY(-2px);
         }
 
         @media (max-width: 768px) {
@@ -233,12 +256,12 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1>Airbnb Listings</h1>
-            <p>Available properties near The Palladium</p>
+            <h1>> DrakkenhomieFinder_v1.0</h1>
+            <p>// Available properties near The Palladium</p>
         </header>
 
         <div class="legend">
-            <h2 class="legend-title">Icon Guide</h2>
+            <h2 class="legend-title">> System.Icons.Guide</h2>
             <div class="legend-grid">
                 <div class="legend-item">
                     <span>🛏️</span>
@@ -311,10 +334,10 @@
                         </div>
 
                         <div class="listing-price">
-                            ${formatMoney(listing["Total cost (With Taxes)"])}
-                            <span style="font-size: 0.9rem; color: #717171">
-                                (${listing["Cost/Person (ENTIRE TRIP)"]} per person)
-                            </span>
+                            ${listing["Cost/Person (ENTIRE TRIP)"]} per person
+                            <div class="total-price">
+                                Total: ${formatMoney(listing["Total cost (With Taxes)"])}
+                            </div>
                         </div>
 
                         <div class="listing-meta">
