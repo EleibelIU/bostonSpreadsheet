@@ -5,12 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Airbnb Listings</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/hack-font/3.3.0/web/hack.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
-    <!-- Replace YOUR_API_KEY with an actual Google Maps API key -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
     <style>
-        /* Previous styles remain the same until the map-related additions */
-        
+        /* Previous styles remain the same */
+        :root {
+            --background: #272822;
+            --card-bg: #1E1F1C;
+            --primary: #A6E22E;
+            --secondary: #F8F8F2;
+            --accent: #FD971F;
+            --highlight: #66D9EF;
+            --danger: #F92672;
+            --success: #A6E22E;
+            --warning: #FD971F;
+            --muted: #75715E;
+        }
+
         /* ... (previous styles) ... */
 
         .map-container {
@@ -27,6 +39,25 @@
             width: 100%;
             height: 100%;
             border-radius: 4px;
+            background-color: var(--card-bg);
+        }
+
+        .leaflet-popup-content-wrapper {
+            background-color: var(--card-bg);
+            color: var(--secondary);
+        }
+
+        .leaflet-popup-tip {
+            background-color: var(--card-bg);
+        }
+
+        .leaflet-container a {
+            color: var(--highlight);
+        }
+
+        /* Dark mode for OpenStreetMap tiles */
+        .leaflet-tile {
+            filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
         }
 
         .map-overlay {
@@ -37,33 +68,9 @@
             padding: 8px;
             border-radius: 4px;
             border: 1px solid var(--muted);
-            z-index: 1;
+            z-index: 1000;
             color: var(--secondary);
             font-size: 0.8rem;
-        }
-
-        .listing-card.active {
-            border-color: var(--highlight);
-            transform: translateY(-4px);
-        }
-
-        .location-button {
-            background: none;
-            border: none;
-            color: var(--highlight);
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-family: Hack, monospace;
-            font-size: 0.9rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-
-        .location-button:hover {
-            background-color: var(--muted);
         }
 
         /* ... (rest of previous styles) ... */
@@ -81,107 +88,85 @@
             <div id="map"></div>
         </div>
 
-        <!-- Rest of the HTML structure remains the same -->
-        <!-- ... -->
+        <main class="listings-grid" id="listings-container">
+            <!-- Listings will be dynamically inserted here -->
+        </main>
     </div>
 
     <script>
         let map;
         let markers = [];
-        let bounds;
-        const VENUE_LOCATION = { lat: 42.2626, lng: -71.8023 }; // The Palladium, Worcester coordinates
+        const VENUE_LOCATION = [42.2626, -71.8023]; // The Palladium, Worcester coordinates
 
         function initMap() {
-            map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 10,
-                center: VENUE_LOCATION,
-                styles: [
-                    {
-                        "elementType": "geometry",
-                        "stylers": [{"color": "#272822"}]
-                    },
-                    {
-                        "elementType": "labels.text.stroke",
-                        "stylers": [{"color": "#242424"}]
-                    },
-                    {
-                        "elementType": "labels.text.fill",
-                        "stylers": [{"color": "#746855"}]
-                    },
-                    {
-                        "featureType": "administrative.locality",
-                        "elementType": "labels.text.fill",
-                        "stylers": [{"color": "#66D9EF"}]
-                    },
-                    // Add more custom styles as needed
-                ],
-            });
+            // Initialize map
+            map = L.map('map').setView(VENUE_LOCATION, 11);
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
 
             // Add venue marker
-            new google.maps.Marker({
-                position: VENUE_LOCATION,
-                map: map,
-                title: "The Palladium",
-                icon: {
-                    path: google.maps.SymbolPath.CIRCLE,
-                    scale: 10,
-                    fillColor: "#F92672",
-                    fillOpacity: 1,
-                    strokeWeight: 2,
-                    strokeColor: "#ffffff",
-                }
+            const venueIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div style="background-color: #F92672; width: 15px; height: 15px; border-radius: 50%; border: 2px solid white;"></div>`,
+                iconSize: [15, 15]
             });
 
-            bounds = new google.maps.LatLngBounds();
-            bounds.extend(VENUE_LOCATION);
+            L.marker(VENUE_LOCATION, {
+                icon: venueIcon,
+                title: "The Palladium"
+            })
+            .bindPopup("<div style='color: #F8F8F2;'>The Palladium</div>")
+            .addTo(map);
         }
 
-        function geocodeLocation(location, name, viability) {
-            if (!location) return;
+        async function geocodeLocation(location) {
+            if (!location) return null;
             
-            const geocoder = new google.maps.Geocoder();
-            geocoder.geocode({ 
-                address: `${location}, MA` 
-            }, (results, status) => {
-                if (status === 'OK') {
-                    const position = results[0].geometry.location;
-                    const marker = new google.maps.Marker({
-                        map: map,
-                        position: position,
-                        title: name,
-                        icon: {
-                            path: google.maps.SymbolPath.CIRCLE,
-                            scale: 8,
-                            fillColor: viability >= 4 ? "#A6E22E" : "#FD971F",
-                            fillOpacity: 0.8,
-                            strokeWeight: 1,
-                            strokeColor: "#ffffff",
-                        }
-                    });
-
-                    const infoWindow = new google.maps.InfoWindow({
-                        content: `<div style="color: #272822;"><strong>${name}</strong><br>${location}, MA</div>`
-                    });
-
-                    marker.addListener('click', () => {
-                        infoWindow.open(map, marker);
-                    });
-
-                    markers.push({ marker, name });
-                    bounds.extend(position);
-                    map.fitBounds(bounds);
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location + ', MA, USA')}`);
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
                 }
+                return null;
+            } catch (error) {
+                console.error('Geocoding error:', error);
+                return null;
+            }
+        }
+
+        function createMarker(coordinates, name, location, viability) {
+            const markerIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div style="background-color: ${viability >= 4 ? '#A6E22E' : '#FD971F'}; 
+                       width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>`,
+                iconSize: [12, 12]
             });
+
+            const marker = L.marker(coordinates, {
+                icon: markerIcon,
+                title: name
+            });
+
+            marker.bindPopup(`<div style='color: #F8F8F2;'>
+                <strong>${name}</strong><br>
+                ${location}, MA
+            </div>`);
+
+            marker.addTo(map);
+            markers.push({ marker, name });
         }
 
         function highlightMarker(name) {
-            markers.forEach(({ marker, name: markerName }) => {
-                if (markerName === name) {
-                    marker.setAnimation(google.maps.Animation.BOUNCE);
-                    setTimeout(() => marker.setAnimation(null), 2100);
-                    map.panTo(marker.getPosition());
-                }
-            });
+            const markerInfo = markers.find(m => m.name === name);
+            if (markerInfo) {
+                map.setView(markerInfo.marker.getLatLng(), 13);
+                markerInfo.marker.openPopup();
+            }
         }
 
         function formatMoney(amount) {
@@ -198,7 +183,7 @@
 
         function createListingCard(listing) {
             const locationDisplay = listing.Location ? 
-                `<button class="location-button" onclick="highlightMarker('${listing["Name "]}')">
+                `<button class="location-button" onclick="highlightMarker('${listing["Name "]}')" style="color: var(--highlight);">
                     📍 ${listing.Location}
                 </button>` : 
                 'Location N/A';
@@ -212,8 +197,35 @@
                             ${locationDisplay}
                         </div>
 
-                        <!-- Rest of the card template remains the same -->
-                        ...
+                        <div class="listing-details">
+                            <div class="listing-detail">
+                                <span class="tooltip" data-tooltip="Number of Bedrooms">🛏️ ${listing.Bedrooms} BR</span>
+                            </div>
+                            <div class="listing-detail">
+                                <span class="tooltip" data-tooltip="Number of Bathrooms">🚿 ${listing.Bathrooms} Bath</span>
+                            </div>
+                            <div class="listing-detail">
+                                <span class="tooltip" data-tooltip="Distance from Airport">✈️ ${listing["Distance from Airport (minutes)"]}min</span>
+                            </div>
+                            <div class="listing-detail">
+                                <span class="tooltip" data-tooltip="Distance from Palladium Venue">🎸 ${listing["Distance (approx. Minutes) from Palladium show VENUE"]}min</span>
+                            </div>
+                        </div>
+
+                        <div class="listing-price">
+                            ${listing["Cost/Person (ENTIRE TRIP)"]} per person
+                            <div class="total-price">
+                                Total: ${formatMoney(listing["Total cost (With Taxes)"])}
+                            </div>
+                        </div>
+
+                        <div class="listing-meta">
+                            ${getViabilityBadge(listing.Viability)}
+                            <span class="tooltip" data-tooltip="${listing.Refundable ? 'Booking is refundable' : 'Booking is non-refundable'}">
+                                ${listing.Refundable ? '✓ Refundable' : '× Non-refundable'}
+                            </span>
+                            <a href="${listing.Url}" target="_blank" class="view-link">View Details</a>
+                        </div>
                     </div>
                 </article>
             `;
@@ -232,12 +244,25 @@
                     .map(listing => createListingCard(listing))
                     .join('');
 
-                // Add markers for each location
-                sortedData.forEach(listing => {
+                // Add markers for each location with a delay to prevent rate limiting
+                for (const listing of sortedData) {
                     if (listing.Location) {
-                        geocodeLocation(listing.Location, listing["Name "], listing.Viability);
+                        // Add delay between geocoding requests
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        const coordinates = await geocodeLocation(listing.Location);
+                        if (coordinates) {
+                            createMarker(coordinates, listing["Name "], listing.Location, listing.Viability);
+                        }
                     }
+                }
+
+                // Fit map bounds to show all markers
+                const bounds = L.latLngBounds([VENUE_LOCATION]);
+                markers.forEach(({ marker }) => {
+                    bounds.extend(marker.getLatLng());
                 });
+                map.fitBounds(bounds);
+
             } catch (error) {
                 console.error('Error loading listings:', error);
             }
