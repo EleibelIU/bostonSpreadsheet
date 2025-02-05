@@ -136,16 +136,17 @@ function initMap() {
 
 // Add markers for listings
 function addListingMarkers(map, listings) {
-    listings.forEach(listing => {
+    // Since listings is an object, not an array, we need to iterate differently
+    Object.entries(listings).forEach(([name, listing]) => {
         if (listing.coordinates) {
             // Create a custom icon based on the viability rating
             const markerColor = listing.Viability >= 4 ? 'var(--success)' : 'var(--warning)';
             
             L.marker(listing.coordinates)
                 .bindPopup(`
-                    <strong>${listing["Name "]}</strong><br>
+                    <strong>${name}</strong><br>
                     ${listing.Location}<br>
-                    ${listing["Cost/Person (ENTIRE TRIP)"]} per person
+                    $${listing.price} per night
                 `)
                 .addTo(map);
         }
@@ -161,14 +162,21 @@ document.addEventListener("DOMContentLoaded", async function () {
         const data = await response.json();
 
         const container = document.getElementById('listings-container');
-        const sortedData = _.sortBy(data, listing => -listing.Viability);
+
+        // Convert object to array for sorting if needed
+        const listingsArray = Object.entries(data).map(([name, listing]) => ({
+            ...listing,
+            "Name ": name  // Keep the space in "Name " to match your existing format
+        }));
+
+        const sortedData = _.sortBy(listingsArray, listing => -listing.Viability);
 
         container.innerHTML = sortedData
             .map((listing, index) => createListingCard(listing, index))
             .join('');
         
-        // Add markers to the map
-        addListingMarkers(map, sortedData);
+        // Pass the original data object to addListingMarkers
+        addListingMarkers(map, data);
     } catch (error) {
         console.error('Error loading listings:', error);
     }
