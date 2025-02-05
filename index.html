@@ -46,6 +46,32 @@
             margin-bottom: 0.5rem;
         }
 
+        .legend {
+            background-color: var(--card);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .legend-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
         .listings-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -89,6 +115,32 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            position: relative;
+        }
+
+        .listing-detail span {
+            cursor: help;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
         }
 
         .listing-price {
@@ -121,6 +173,7 @@
             border-radius: 999px;
             font-size: 0.8rem;
             font-weight: 500;
+            cursor: help;
         }
 
         .badge-success {
@@ -153,13 +206,17 @@
                 padding: 0.5rem;
             }
 
-            .header {
+            .header, .legend {
                 padding: 1rem;
                 margin-bottom: 1rem;
             }
 
             .header h1 {
                 font-size: 1.5rem;
+            }
+
+            .legend-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
 
             .listings-grid {
@@ -179,6 +236,36 @@
             <h1>Airbnb Listings</h1>
             <p>Available properties near The Palladium</p>
         </header>
+
+        <div class="legend">
+            <h2 class="legend-title">Icon Guide</h2>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <span>🛏️</span>
+                    <span>Number of Bedrooms</span>
+                </div>
+                <div class="legend-item">
+                    <span>🚿</span>
+                    <span>Number of Bathrooms</span>
+                </div>
+                <div class="legend-item">
+                    <span>✈️</span>
+                    <span>Minutes from Airport</span>
+                </div>
+                <div class="legend-item">
+                    <span>🎸</span>
+                    <span>Minutes from Venue</span>
+                </div>
+                <div class="legend-item">
+                    <span>✓</span>
+                    <span>Refundable Booking</span>
+                </div>
+                <div class="legend-item">
+                    <span>×</span>
+                    <span>Non-refundable Booking</span>
+                </div>
+            </div>
+        </div>
         
         <main class="listings-grid" id="listings-container">
             <!-- Listings will be dynamically inserted here -->
@@ -195,7 +282,7 @@
 
         function getViabilityBadge(viability) {
             const className = viability >= 4 ? 'badge-success' : 'badge-warning';
-            return `<span class="badge ${className}">${viability}/5</span>`;
+            return `<span class="badge ${className}" data-tooltip="Property Rating: ${viability} out of 5">${viability}/5</span>`;
         }
 
         function createListingCard(listing) {
@@ -210,16 +297,16 @@
 
                         <div class="listing-details">
                             <div class="listing-detail">
-                                <span>🛏️ ${listing.Bedrooms} BR</span>
+                                <span class="tooltip" data-tooltip="Number of Bedrooms">🛏️ ${listing.Bedrooms} BR</span>
                             </div>
                             <div class="listing-detail">
-                                <span>🚿 ${listing.Bathrooms} Bath</span>
+                                <span class="tooltip" data-tooltip="Number of Bathrooms">🚿 ${listing.Bathrooms} Bath</span>
                             </div>
                             <div class="listing-detail">
-                                <span>✈️ ${listing["Distance from Airport (minutes)"]}min</span>
+                                <span class="tooltip" data-tooltip="Distance from Airport">✈️ ${listing["Distance from Airport (minutes)"]}min</span>
                             </div>
                             <div class="listing-detail">
-                                <span>🎸 ${listing["Distance (approx. Minutes) from Palladium show VENUE"]}min</span>
+                                <span class="tooltip" data-tooltip="Distance from Palladium Venue">🎸 ${listing["Distance (approx. Minutes) from Palladium show VENUE"]}min</span>
                             </div>
                         </div>
 
@@ -232,7 +319,7 @@
 
                         <div class="listing-meta">
                             ${getViabilityBadge(listing.Viability)}
-                            <span>${listing.Refundable ? '✓ Refundable' : '× Non-refundable'}</span>
+                            <span class="tooltip" data-tooltip="${listing.Refundable ? 'Booking is refundable' : 'Booking is non-refundable'}">${listing.Refundable ? '✓ Refundable' : '× Non-refundable'}</span>
                             <a href="${listing.Url}" target="_blank" class="view-link">View Details</a>
                         </div>
                     </div>
