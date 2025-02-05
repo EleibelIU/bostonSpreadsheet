@@ -74,47 +74,47 @@
             return `<span class="badge ${className}" data-tooltip="Property Rating: ${viability} out of 5">★ ${viability}/5</span>`;
         }
 
-        function createListingCard(listing, index) {
-            return `
-                <article class="listing-card" style="--delay: ${index}">
-                    <div class="listing-content">
-                        <h2 class="listing-title">${listing["Name "]}</h2>
-                        
-                        <div class="listing-location">
-                            <span>${listing.Location || 'Location N/A'}</span>
-                        </div>
+function createListingCard(listing, index) {
+    return `
+        <article class="listing-card" style="--delay: ${index}">
+            <div class="listing-content">
+                <h2 class="listing-title">${listing["Name "]}</h2>
+                
+                <div class="listing-location">
+                    <span>${listing.Location || 'Location N/A'}</span>
+                </div>
 
-                        <div class="listing-details">
-                            <div class="listing-detail">
-                                <span class="tooltip" data-tooltip="Number of Bedrooms">🛏️ ${listing.Bedrooms} BR</span>
-                            </div>
-                            <div class="listing-detail">
-                                <span class="tooltip" data-tooltip="Number of Bathrooms">🚿 ${listing.Bathrooms} Bath</span>
-                            </div>
-                            <div class="listing-detail">
-                                <span class="tooltip" data-tooltip="Distance from Airport">✈️ ${listing["Distance from Airport (minutes)"]}min</span>
-                            </div>
-                            <div class="listing-detail">
-                                <span class="tooltip" data-tooltip="Distance from Palladium Venue">🎸 ${listing["Distance (approx. Minutes) from Palladium show VENUE"]}min</span>
-                            </div>
-                        </div>
-
-                        <div class="listing-price">
-                            ${listing["Cost/Person (ENTIRE TRIP)"]} per person
-                            <div class="total-price">
-                                Total: ${formatMoney(listing["Total cost (With Taxes)"])}
-                            </div>
-                        </div>
-
-                        <div class="listing-meta">
-                            ${getViabilityBadge(listing.Viability)}
-                            <span class="tooltip" data-tooltip="${listing.Refundable ? 'Booking is refundable' : 'Booking is non-refundable'}">${listing.Refundable ? '✓ Refundable' : '× Non-refundable'}</span>
-                            <a href="${listing.Url}" target="_blank" class="view-link">View Details</a>
-                        </div>
+                <div class="listing-details">
+                    <div class="listing-detail">
+                        <span class="tooltip" data-tooltip="Bed Configuration:&#10;${listing.Notes}">🛏️ ${listing.Bedrooms} BR</span>
                     </div>
-                </article>
-            `;
-        }
+                    <div class="listing-detail">
+                        <span class="tooltip" data-tooltip="Number of Bathrooms">🚿 ${listing.Bathrooms} Bath</span>
+                    </div>
+                    <div class="listing-detail">
+                        <span class="tooltip" data-tooltip="Distance from Airport">✈️ ${listing["Distance from Airport (minutes)"]}min</span>
+                    </div>
+                    <div class="listing-detail">
+                        <span class="tooltip" data-tooltip="Distance from Palladium Venue">🎸 ${listing["Distance (approx. Minutes) from Palladium show VENUE"]}min</span>
+                    </div>
+                </div>
+
+                <div class="listing-price">
+                    ${listing["Cost/Person (ENTIRE TRIP)"]} per person
+                    <div class="total-price">
+                        Total: ${formatMoney(listing["Total cost (With Taxes)"])}
+                    </div>
+                </div>
+
+                <div class="listing-meta">
+                    ${getViabilityBadge(listing.Viability)}
+                    <span class="tooltip" data-tooltip="${listing.Refundable ? 'Booking is refundable' : 'Booking is non-refundable'}">${listing.Refundable ? '✓ Refundable' : '× Non-refundable'}</span>
+                    <a href="${listing.Url}" target="_blank" class="view-link">View Details</a>
+                </div>
+            </div>
+        </article>
+    `;
+}
     </script>
     <script src="map.js"></script>
 
