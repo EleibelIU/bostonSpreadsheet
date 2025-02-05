@@ -15,25 +15,25 @@ class MapManager {
             4: '#99cc00',
             5: '#44bb44'
         };
-        return colors[rating] || '#gray';
+        return colors[rating] || '#808080';
     }
 
     initialize() {
+        // Initialize map with dark mode style from CartoDB
         this.map = L.map('map').setView(this.palladiumCoords, 11);
         
-        // Use OpenStreetMap tiles with dark theme
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 19,
-            className: 'dark-themed-map' // This class will be affected by our CSS filters
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '©OpenStreetMap, ©CartoDB',
+            subdomains: 'abcd',
+            maxZoom: 19
         }).addTo(this.map);
 
         // Add Palladium marker
         const venueIcon = L.divIcon({
-            html: '<div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; border: 2px solid #fff;"><img src="assets/tarcil.jpg" style="width: 100%; height: 100%; object-fit: cover;"></div>',
+            html: '<div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; border: 3px solid #fff; box-shadow: 0 0 10px rgba(0,0,0,0.5);"><img src="/assets/tarcil.jpg" style="width: 100%; height: 100%; object-fit: cover;"></div>',
             className: 'venue-marker',
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
         });
 
         L.marker(this.palladiumCoords, { icon: venueIcon })
@@ -47,13 +47,15 @@ class MapManager {
         this.markers = [];
 
         listings.forEach(listing => {
-            // Create marker with random offset (you should replace this with actual coordinates)
-            const lat = this.palladiumCoords[0] + (Math.random() - 0.5) * 0.1;
-            const lng = this.palladiumCoords[1] + (Math.random() - 0.5) * 0.1;
+            // Create marker with random offset (but ensure they're all visible)
+            const offsetLat = (Math.random() - 0.5) * 0.08;
+            const offsetLng = (Math.random() - 0.5) * 0.08;
+            const lat = this.palladiumCoords[0] + offsetLat;
+            const lng = this.palladiumCoords[1] + offsetLng;
             
             // Create circle marker
             const marker = L.circleMarker([lat, lng], {
-                radius: 10,
+                radius: 8,
                 fillColor: this.getColorForRating(listing.Viability),
                 color: '#ffffff',
                 weight: 2,
@@ -61,25 +63,30 @@ class MapManager {
                 fillOpacity: 0.8
             })
             .bindPopup(`
-                <strong>${listing["Name "]}</strong><br>
-                ${listing.Location}<br>
-                ${listing["Cost/Person (ENTIRE TRIP)"]} per person<br>
-                Rating: ${listing.Viability}/5
+                <div style="color: #333;">
+                    <strong>${listing["Name "]}</strong><br>
+                    ${listing.Location}<br>
+                    ${listing["Cost/Person (ENTIRE TRIP)"]} per person<br>
+                    Rating: ${listing.Viability}/5
+                </div>
             `)
             .addTo(this.map);
             
             // Add hover effect
             marker.on('mouseover', function() {
                 this.setStyle({
-                    radius: 12,
-                    fillOpacity: 1
+                    radius: 10,
+                    fillOpacity: 1,
+                    weight: 3
                 });
+                this.bringToFront();
             });
             
             marker.on('mouseout', function() {
                 this.setStyle({
-                    radius: 10,
-                    fillOpacity: 0.8
+                    radius: 8,
+                    fillOpacity: 0.8,
+                    weight: 2
                 });
             });
             
@@ -92,7 +99,5 @@ class MapManager {
 document.addEventListener("DOMContentLoaded", function() {
     const mapManager = new MapManager();
     mapManager.initialize();
-
-    // Make mapManager available globally for other scripts
     window.mapManager = mapManager;
 });
